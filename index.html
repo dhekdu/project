@@ -1,0 +1,64 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cluster Simulator</title>
+</head>
+<body>
+
+<h1>💻 Simulateur Multiprocesseur</h1>
+
+<h2>Ajouter machine</h2>
+<input id="ip" placeholder="IP">
+<button onclick="addMachine()">Ajouter</button>
+
+<h2>Ajouter tâche</h2>
+<input id="task" placeholder="Tâche">
+<button onclick="addTask()">Envoyer</button>
+
+<h2>Machines</h2>
+<ul id="machines"></ul>
+
+<h2>Résultats</h2>
+<ul id="results"></ul>
+
+<script>
+function addMachine() {
+    fetch("/add_machine", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ip: document.getElementById("ip").value})
+    });
+}
+
+function addTask() {
+    fetch("/add_task", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({task: document.getElementById("task").value})
+    });
+}
+
+function update() {
+    fetch("/status")
+    .then(r => r.json())
+    .then(data => {
+        let m = document.getElementById("machines");
+        m.innerHTML = "";
+        data.machines.forEach(x => {
+            m.innerHTML += `<li>${x.ip} - ${x.busy ? "⏳ occupé" : "✅ libre"}</li>`;
+        });
+
+        let r = document.getElementById("results");
+        r.innerHTML = "";
+        data.results.forEach(x => {
+            r.innerHTML += `<li>${x}</li>`;
+        });
+    });
+}
+
+setInterval(update, 1000);
+</script>
+
+</body>
+</html>
